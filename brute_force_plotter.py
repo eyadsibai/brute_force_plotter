@@ -139,7 +139,7 @@ def plot_category_category(input_file, col1, col2, path):
 
 @dask.delayed
 def plot_numeric_numeric(input_file, col1, col2, path):
-    df = pd.read_parquet(input_file, columns=[col1, col2])
+    df = pd.read_parquet(input_file, columns=[col1, col2, "target"])
     file_name = os.path.join(path, f"{col1}-{col2}-scatter-plot.png")
     scatter_plot(df, col1, col2, file_name=file_name)
 
@@ -232,20 +232,6 @@ def _create_directories(output_path):
     return distribution_path, two_d_interaction_path, three_d_interaction_path
 
 
-# def plot_data_frame(df):
-# file_path = path + 'corr-spearman-plot.png'
-# if not os.path.isfile(file_path):
-# sns.corrplot(df, cmap_range='full', method='spearman')
-# plt.savefig(file_path, dpi=120)
-# plt.close()
-
-# file_path = path + 'corr-pearson-plot.png'
-# if not os.path.isfile(file_path):
-# sns.corrplot(df, cmap_range='full')
-# plt.savefig(file_path, dpi=120)
-# plt.close()
-
-
 def autolabel(rects):
     for rect in rects:
         height = rect.get_height()
@@ -291,7 +277,7 @@ def bar_plot(data, col, hue=None, file_name=None):
 
 @ignore_if_exist_or_save
 def scatter_plot(data, col1, col2, file_name=None):
-    sns.regplot(x=col1, y=col2, data=data, fit_reg=False)
+    sns.scatterplot(x=col1, y=col2, hue="target", data=data, fit_reg=False)
     sns.despine(left=True)
 
 
