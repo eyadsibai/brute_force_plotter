@@ -36,7 +36,7 @@ ignore = set()
 sns.set_style("darkgrid")
 sns.set_context("paper")
 
-sns.set(rc={"figure.figsize": (8, 6)})
+sns.set(rc={"figure.figsize": (6, 4)})
 
 
 @click.command()
@@ -46,12 +46,12 @@ sns.set(rc={"figure.figsize": (8, 6)})
 def main(input_file, dtypes, output_path):
     """Create Plots From data in input"""
 
-    data = pd.read_csv(input_file)
-    new_file_name = f"{input_file}.parq"
-    data.to_parquet(new_file_name)
+#    data = pd.read_csv(input_file)
+#    new_file_name = f"{input_file}.parq"
+#    data.to_parquet(new_file_name)
 
     data_types = json.load(open(dtypes, "r"))
-    plots = create_plots(new_file_name, data_types, output_path)
+    plots = create_plots(input_file, data_types, output_path)
     with ProgressBar():
         dask.compute(*plots, scheduler="processes", n_workers=22)
 
@@ -84,12 +84,13 @@ def make_sure_path_exists(path):
 
 @dask.delayed
 def plot_single_numeric(input_file, col, path):
-    df = pd.read_parquet(input_file, columns=[col])
+    df = pd.read_parquet(input_file, columns=[col,"target"])
     file_name = os.path.join(path, f"{col}-dist-plot.png")
-    data = df[col].dropna()
-    f, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6))
-    histogram_violin_plots(data, axes, file_name=file_name)
+    data = df[[col,'target']].dropna()
+    #f, axes = plt.subplots(2, 1, sharex=True, figsize=(8, 6))
+    #histogram_violin_plots(data, axes, file_name=file_name)
 
+    kde_plot(data,col, file_name=file_name)
     # TODO plot log transformation too?
     # file_path = path + col + '-log-dist-plot.png'
     # if not os.path.isfile(file_path):
@@ -124,6 +125,16 @@ def plot_single_category(input_file, col, path):
         file_name = os.path.join(path, col + "-bar-plot.png")
         bar_plot(df, col, file_name=file_name)
 
+@ignore_if_exist_or_save
+def kde_plot(df, col, col_name='target', file_name=None):
+#    sns.set_style('white')
+#    sns.set_style('ticks')
+#    fig, ax = plt.subplots()
+
+    for target in df[col_name].unique():
+        condition_data = df[(df[col_name] == target)][col]
+        sns.kdeplot(condition_data, shade=True, label=target)
+    sns.despine()
 
 @dask.delayed
 def plot_category_category(input_file, col1, col2, path):
@@ -277,7 +288,7 @@ def bar_plot(data, col, hue=None, file_name=None):
 
 @ignore_if_exist_or_save
 def scatter_plot(data, col1, col2, file_name=None):
-    sns.scatterplot(x=col1, y=col2, hue="target", data=data, fit_reg=False)
+    sns.scatterplot(x=col1, y=col2, hue="target", data=data, alpha=0.2)
     sns.despine(left=True)
 
 
