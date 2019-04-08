@@ -1,0 +1,31 @@
+{
+  "problem_type": "discrete",
+  "column_dtypes": {
+    "Survived": "category",
+    "Pclass": "category",
+    "Sex": "category",
+    "Age": "float",
+    "SibSp": "float",
+    "Parch": "float",
+    "Fare": "float",
+    "Embarked": "category",
+    "PassengerId": "str",
+    "Ticket": "str",
+    "Cabin": "str",
+    "Name": "str"
+  },
+  "target_columns": ["Survived"],
+  "features": [
+    "Pclass",
+    "Sex",
+    "Age",
+    "SibSp",
+    "Parch",
+    "Fare",
+    "Embarked",
+    "Ticket",
+    "Cabin",
+    "Name"
+  ],
+  "id": "PassengerId"
+}
